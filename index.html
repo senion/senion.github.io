@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>梅花深度推演</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            -webkit-tap-highlight-color: transparent;
+            background-color: #f2f2f7;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            color: #1c1c1e;
+        }
+        .safe-top { padding-top: env(safe-area-inset-top); }
+        .card { background: white; border-radius: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); margin-bottom: 12px; border: 1px solid rgba(0,0,0,0.01); }
+        .gua-lines-container { display: flex; flex-direction: column-reverse; gap: 4px; width: 45px; cursor: pointer; }
+        .line { height: 6px; border-radius: 2px; }
+        .line-yang { background-color: #1c1c1e; width: 100%; }
+        .line-yin { display: flex; justify-content: space-between; width: 100%; }
+        .line-yin div { background-color: #1c1c1e; width: 44%; height: 100%; border-radius: 2px; }
+        .line-moving { background-color: #ef4444 !important; }
+        .line-moving-yin div { background-color: #ef4444 !important; }
+        select { border: none; background: transparent; appearance: none; width: 100%; font-weight: bold; outline: none; }
+        .external-link { color: #3b82f6; text-decoration: underline; cursor: pointer; }
+    </style>
+</head>
+<body class="safe-top pb-10">
+    <div class="max-w-md mx-auto p-4">
+        <!-- Header -->
+        <header class="flex justify-between items-center px-1 pt-2 pb-4">
+            <div>
+                <h1 class="text-2xl font-black tracking-tight">梅花深度推演</h1>
+                <p class="text-gray-400 text-[10px] font-bold uppercase tracking-widest mt-1">Bayesian Deduction</p>
+            </div>
+            <div class="text-right">
+                <span class="text-[10px] font-black bg-blue-600 text-white px-2 py-1 rounded">V3.0 FIXED</span>
+            </div>
+        </header>
+
+        <!-- 1. 时间数理 -->
+        <div class="card p-5">
+            <input type="datetime-local" id="timeInput" class="w-full bg-gray-50 p-3 rounded-xl border-none outline-none ring-1 ring-gray-100 focus:ring-blue-500 font-mono text-md mb-4">
+            <div class="grid grid-cols-4 gap-2">
+                <div class="bg-gray-50 p-2 rounded-xl text-center">
+                    <div class="text-[9px] text-gray-400 font-bold">年支</div>
+                    <div id="numYear" class="text-lg font-black text-slate-700">-</div>
+                </div>
+                <div class="bg-gray-50 p-2 rounded-xl text-center">
+                    <div class="text-[9px] text-gray-400 font-bold">月</div>
+                    <div id="numMonth" class="text-lg font-black text-slate-700">-</div>
+                </div>
+                <div class="bg-gray-50 p-2 rounded-xl text-center">
+                    <div class="text-[9px] text-gray-400 font-bold">日</div>
+                    <div id="numDay" class="text-lg font-black text-slate-700">-</div>
+                </div>
+                <div class="bg-gray-50 p-2 rounded-xl text-center">
+                    <div class="text-[9px] text-gray-400 font-bold">时支</div>
+                    <div id="numHour" class="text-lg font-black text-slate-700">-</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. 手动选择区 -->
+        <div class="card p-5">
+            <div class="flex gap-2 mb-4">
+                <div class="flex-1 bg-gray-50 rounded-xl px-3 py-2 border border-gray-100">
+                    <div class="text-[9px] text-gray-400 font-bold">上卦设定</div>
+                    <select id="upSelect">
+                        <option value="1">1 乾金</option><option value="2">2 兑金</option><option value="3">3 离火</option><option value="4">4 震木</option>
+                        <option value="5">5 巽木</option><option value="6">6 坎水</option><option value="7">7 艮土</option><option value="8">8 坤土</option>
+                    </select>
+                </div>
+                <div class="flex-1 bg-gray-50 rounded-xl px-3 py-2 border border-gray-100">
+                    <div class="text-[9px] text-gray-400 font-bold">下卦设定</div>
+                    <select id="lowSelect">
+                        <option value="1">1 乾金</option><option value="2">2 兑金</option><option value="3">3 离火</option><option value="4">4 震木</option>
+                        <option value="5">5 巽木</option><option value="6">6 坎水</option><option value="7">7 艮土</option><option value="8">8 坤土</option>
+                    </select>
+                </div>
+            </div>
+            <div class="bg-gray-50 p-1 rounded-xl flex gap-1">
+                <button class="yao-btn flex-1 py-2 rounded-lg text-[10px] font-black transition-all" data-val="1">1爻</button>
+                <button class="yao-btn flex-1 py-2 rounded-lg text-[10px] font-black transition-all" data-val="2">2爻</button>
+                <button class="yao-btn flex-1 py-2 rounded-lg text-[10px] font-black transition-all" data-val="3">3爻</button>
+                <button class="yao-btn flex-1 py-2 rounded-lg text-[10px] font-black transition-all" data-val="4">4爻</button>
+                <button class="yao-btn flex-1 py-2 rounded-lg text-[10px] font-black transition-all" data-val="5">5爻</button>
+                <button class="yao-btn flex-1 py-2 rounded-lg text-[10px] font-black transition-all" data-val="6">6爻</button>
+            </div>
+        </div>
+
+        <!-- 3. 三卦视图 (点击卦名跳转详解) -->
+        <div class="grid grid-cols-3 gap-2 mb-3">
+            <div class="card p-3 flex flex-col items-center">
+                <span class="text-[8px] font-black text-blue-500 mb-2">本卦 (现状)</span>
+                <div id="benLines" class="gua-lines-container mb-2"></div>
+                <div id="benName" class="text-[10px] font-black external-link">--</div>
+            </div>
+            <div class="card p-3 flex flex-col items-center">
+                <span class="text-[8px] font-black text-amber-500 mb-2">互卦 (过程)</span>
+                <div id="huLines" class="gua-lines-container mb-2"></div>
+                <div id="huName" class="text-[10px] font-black external-link">--</div>
+            </div>
+            <div class="card p-3 flex flex-col items-center">
+                <span class="text-[8px] font-black text-rose-500 mb-2">变卦 (结果)</span>
+                <div id="bianLines" class="gua-lines-container mb-2"></div>
+                <div id="bianName" class="text-[10px] font-black external-link">--</div>
+            </div>
+        </div>
+
+        <!-- 4. 详细分析区 -->
+        <div class="card p-5 space-y-4">
+            <div class="flex items-center justify-between border-b pb-4">
+                <div>
+                    <span id="tiTag" class="text-[9px] font-bold text-gray-400 block uppercase tracking-tighter">--</span>
+                    <span id="tiWuxing" class="text-lg font-black text-slate-800">--</span>
+                </div>
+                <div class="text-center">
+                    <div id="mainRel" class="text-xs font-black bg-slate-800 text-white px-3 py-1 rounded-full italic">--</div>
+                    <div id="movingInfo" class="text-[9px] font-bold text-gray-300 mt-1 uppercase">--</div>
+                </div>
+                <div class="text-right">
+                    <span id="yongTag" class="text-[9px] font-bold text-gray-400 block uppercase tracking-tighter">--</span>
+                    <span id="yongWuxing" class="text-lg font-black text-slate-800">--</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div class="bg-gray-50 p-3 rounded-xl border border-gray-100">
+                    <div class="text-[9px] font-black text-gray-400 mb-1 uppercase">卦气权重 (Energy)</div>
+                    <div id="tiQiResult" class="text-xs font-bold text-slate-600">--</div>
+                </div>
+                <div class="bg-blue-50 p-3 rounded-xl border border-blue-100">
+                    <div class="text-[9px] font-black text-blue-400 mb-1 uppercase">条件独立信息</div>
+                    <div class="text-xs font-bold text-blue-700">Bayesian Evidence</div>
+                </div>
+            </div>
+
+            <div class="space-y-3 pt-2">
+                <div class="bg-gray-50 p-4 rounded-2xl">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-[10px] font-black text-blue-700 uppercase">现状分析 [本卦]</span>
+                        <span id="benRelBadge" class="text-[10px] font-bold text-blue-500">--</span>
+                    </div>
+                    <p id="benText" class="text-xs leading-relaxed text-slate-600">--</p>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-2xl">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-[10px] font-black text-amber-700 uppercase">演化趋势 [互卦]</span>
+                        <span id="huRelBadge" class="text-[10px] font-bold text-amber-500">--</span>
+                    </div>
+                    <p id="huText" class="text-xs leading-relaxed text-slate-600">--</p>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-2xl">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-[10px] font-black text-rose-700 uppercase">最终预测 [变卦]</span>
+                        <span id="bianRelBadge" class="text-[10px] font-bold text-rose-500">--</span>
+                    </div>
+                    <p id="bianText" class="text-xs leading-relaxed text-slate-600">--</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const BAGUA = {
+            1: { name: "乾", symbol: "☰", nature: "天", wuxing: "金", lines: [1,1,1] },
+            2: { name: "兑", symbol: "☱", nature: "泽", wuxing: "金", lines: [1,1,0] },
+            3: { name: "离", symbol: "☲", nature: "火", wuxing: "火", lines: [1,0,1] },
+            4: { name: "震", symbol: "☳", nature: "雷", wuxing: "木", lines: [1,0,0] },
+            5: { name: "巽", symbol: "☴", nature: "风", wuxing: "木", lines: [0,1,1] },
+            6: { name: "坎", symbol: "☵", nature: "水", wuxing: "水", lines: [0,1,0] },
+            7: { name: "艮", symbol: "☶", nature: "山", wuxing: "土", lines: [0,0,1] },
+            8: { name: "坤", symbol: "☷", nature: "地", wuxing: "土", lines: [0,0,0] }
+        };
+
+        const WX_REL = {
+            "金": { "金": "比和", "木": "体克用", "水": "体生用", "火": "用克体", "土": "用生体" },
+            "木": { "金": "用克体", "木": "比和", "水": "用生体", "火": "体生用", "土": "体克用" },
+            "水": { "金": "用生体", "木": "体生用", "水": "比和", "火": "体克用", "土": "用克体" },
+            "火": { "金": "体克用", "木": "用生体", "水": "用克体", "火": "比和", "土": "体生用" },
+            "土": { "金": "体生用", "木": "用克体", "水": "体克用", "火": "用生体", "土": "比和" }
+        };
+
+        const MONTH_WX = ["水", "木", "木", "土", "火", "火", "土", "金", "金", "土", "水", "土"];
+        
+        let movingYao = 1;
+        let isAuto = true;
+
+        function getLunar(d) {
+            const yz = (d.getFullYear() - 4) % 12 + 1;
+            const m = d.getMonth() + 1;
+            const dy = d.getDate();
+            const hz = Math.floor(((d.getHours() + 1) % 24) / 2) + 1;
+            return { yz, m, dy, hz };
+        }
+
+        function draw(id, lines, move = -1) {
+            const el = document.getElementById(id);
+            el.innerHTML = '';
+            lines.forEach((l, i) => {
+                const row = document.createElement('div');
+                row.className = 'line';
+                if(l === 1) {
+                    row.classList.add('line-yang');
+                    if(i + 1 === move) row.classList.add('line-moving');
+                } else {
+                    row.classList.add('line-yin');
+                    if(i + 1 === move) row.classList.add('line-moving-yin');
+                    row.innerHTML = '<div></div><div></div>';
+                }
+                el.appendChild(row);
+            });
+        }
+
+        function findIdx(l3) {
+            const s = l3.join('');
+            for(let k in BAGUA) if(BAGUA[k].lines.join('') === s) return k;
+            return 1;
+        }
+
+        function openGuaLink(up, low) {
+            const full = BAGUA[up].nature + BAGUA[low].nature;
+            // 简单逻辑：如果是乾为天这种，叫天为天
+            let name = full === BAGUA[up].nature + BAGUA[up].nature ? BAGUA[up].name + "为" + BAGUA[up].nature : full;
+            window.open(`https://m.64gua.com/jiemeng/64gua/${encodeURIComponent(name)}.html`);
+        }
+
+        function update() {
+            const dt = new Date(document.getElementById('timeInput').value);
+            const l = getLunar(dt);
+            
+            document.getElementById('numYear').innerText = l.yz;
+            document.getElementById('numMonth').innerText = l.m;
+            document.getElementById('numDay').innerText = l.dy;
+            document.getElementById('numHour').innerText = l.hz;
+
+            if(isAuto) {
+                document.getElementById('upSelect').value = (l.yz + l.m + l.dy) % 8 || 8;
+                document.getElementById('lowSelect').value = (l.yz + l.m + l.dy + l.hz) % 8 || 8;
+                movingYao = (l.yz + l.m + l.dy + l.hz) % 6 || 6;
+                syncButtons();
+            }
+
+            const upI = document.getElementById('upSelect').value;
+            const lowI = document.getElementById('lowSelect').value;
+            const benL = [...BAGUA[lowI].lines, ...BAGUA[upI].lines];
+            
+            // 互
+            const huLowI = findIdx([benL[1], benL[2], benL[3]]);
+            const huUpI = findIdx([benL[2], benL[3], benL[4]]);
+            // 变
+            const bianL = [...benL]; bianL[movingYao-1] = bianL[movingYao-1] === 1 ? 0 : 1;
+            const bianLowI = findIdx(bianL.slice(0,3));
+            const bianUpI = findIdx(bianL.slice(3,6));
+
+            draw('benLines', benL, movingYao);
+            draw('huLines', [...BAGUA[huLowI].lines, ...BAGUA[huUpI].lines]);
+            draw('bianLines', bianL);
+
+            const benN = BAGUA[upI].nature + BAGUA[lowI].nature;
+            const huN = BAGUA[huUpI].nature + BAGUA[huLowI].nature;
+            const bianN = BAGUA[bianUpI].nature + BAGUA[bianLowI].nature;
+
+            document.getElementById('benName').innerText = benN;
+            document.getElementById('huName').innerText = huN;
+            document.getElementById('bianName').innerText = bianN;
+
+            // 链接绑定
+            document.getElementById('benName').onclick = () => openGuaLink(upI, lowI);
+            document.getElementById('huName').onclick = () => openGuaLink(huUpI, huLowI);
+            document.getElementById('bianName').onclick = () => openGuaLink(bianUpI, bianLowI);
+
+            // 分析
+            const tiG = movingYao > 3 ? BAGUA[lowI] : BAGUA[upI];
+            const yoG = movingYao > 3 ? BAGUA[upI] : BAGUA[lowI];
+            const mRel = WX_REL[tiG.wuxing][yoG.wuxing];
+
+            document.getElementById('tiTag').innerText = movingYao > 3 ? "下卦为体" : "上卦为体";
+            document.getElementById('tiWuxing').innerText = tiG.name + "(" + tiG.wuxing + ")";
+            document.getElementById('yongTag').innerText = movingYao > 3 ? "上卦为用" : "下卦为用";
+            document.getElementById('yongWuxing').innerText = yoG.name + "(" + yoG.wuxing + ")";
+            document.getElementById('mainRel').innerText = mRel;
+            document.getElementById('movingInfo').innerText = "动在" + movingYao + "爻";
+
+            // 卦气
+            const curWx = MONTH_WX[dt.getMonth()];
+            const table = {"木":{"火":"旺","木":"相","水":"休","金":"囚","土":"死"},"火":{"土":"旺","火":"相","木":"休","水":"囚","金":"死"},"土":{"金":"旺","土":"相","火":"休","木":"囚","水":"死"},"金":{"水":"旺","金":"相","土":"休","火":"囚","木":"死"},"水":{"木":"旺","水":"相","金":"休","土":"囚","火":"死"}};
+            const q = table[curWx][tiG.wuxing] || "平";
+            document.getElementById('tiQiResult').innerText = `月令[${curWx}] -> 体卦[${q}]`;
+
+            // 文本填入
+            const dict = {
+                "比和": "先验概率稳定：内外环境同频。主顺遂且利于合作，预测熵值低。",
+                "体克用": "先验概率优势：我方占据主导。虽有能量损耗，但结果极大概率符合预期。",
+                "用生体": "先验概率极佳：得外部动能灌注。贵人相助，应期较快，正向反馈明显。",
+                "体生用": "后验观察警示：能值正在外溢。主虚耗，若体卦非旺相，则需防守收缩。",
+                "用克体": "高危风险因子：受外部环境剧烈制约。若体卦休囚，则为大凶，需极限防御。"
+            };
+
+            document.getElementById('benRelBadge').innerText = mRel;
+            document.getElementById('benText').innerText = dict[mRel];
+            
+            const huRel = WX_REL[tiG.wuxing][BAGUA[huUpI].wuxing];
+            document.getElementById('huRelBadge').innerText = huRel;
+            document.getElementById('huText').innerText = `中期演化为[${huRel}]。系统内部反馈显示${huRel.includes('生')?'有利的隐藏逻辑':'潜在的结构性冲突'}。`;
+            
+            const bianRel = WX_REL[tiG.wuxing][BAGUA[bianUpI].wuxing];
+            document.getElementById('bianRelBadge').innerText = bianRel;
+            document.getElementById('bianText').innerText = `后验终局为[${bianRel}]。预测系统最终指向${bianRel.includes('生')||bianRel==='比和'?'熵减圆满':'熵增波动'}。`;
+        }
+
+        function syncButtons() {
+            document.querySelectorAll('.yao-btn').forEach(b => {
+                if(parseInt(b.dataset.val) === movingYao) {
+                    b.classList.add('bg-white', 'text-blue-600', 'shadow-sm', 'ring-1', 'ring-gray-100');
+                } else {
+                    b.classList.remove('bg-white', 'text-blue-600', 'shadow-sm', 'ring-1', 'ring-gray-100');
+                    b.classList.add('text-gray-400');
+                }
+            });
+        }
+
+        document.getElementById('timeInput').onchange = () => { isAuto = true; update(); };
+        document.getElementById('upSelect').onchange = () => { isAuto = false; update(); };
+        document.getElementById('lowSelect').onchange = () => { isAuto = false; update(); };
+        document.querySelectorAll('.yao-btn').forEach(btn => {
+            btn.onclick = () => { isAuto = false; movingYao = parseInt(btn.dataset.val); syncButtons(); update(); };
+        });
+
+        window.onload = () => {
+            const n = new Date();
+            n.setMinutes(n.getMinutes() - n.getTimezoneOffset());
+            document.getElementById('timeInput').value = n.toISOString().slice(0, 16);
+            update();
+        };
+    </script>
+</body>
+</html>
